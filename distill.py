@@ -31,3 +31,6 @@ def distill_verify_comparison_experiment(network_path, property_path, student_op
     # Distillation Verification
     student = distill(teacher, student_options)
     output = verify(teacher, property_path, timeout=600)
+
+def refinement_loop_experiment():
+    pass
