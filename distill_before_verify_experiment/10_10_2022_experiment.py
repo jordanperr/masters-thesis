@@ -120,36 +120,43 @@ def verify(network, property, verifier):
     """
     pass
 
-def distill_verify_comparison_experiment(network_path, property_path, student_options):
-    teacher = load_network(network_path)
+def distill_verify_comparison_experiment(config):
+    # teacher = load_network(network_path)
     
-    # Classic Verification
-    output = verify(student, property_path, timeout=600)
+    # # Classic Verification
+    # output = verify(student, property_path, timeout=600)
 
-    # Distillation Verification
-    student = distill(teacher, student_options)
-    output = verify(student, property_path, timeout=600)
+    # # Distillation Verification
+    # student = distill(teacher, student_options)
+    # output = verify(student, property_path, timeout=600)
+    pass
 
 def refinement_loop_experiment():
     pass
 
 if __name__=="__main__":
+    import multiprocessing as mp
+    import tqdm
+    import itertools
+
     PARALLELISM = 8
 
     hyperparameters = {
         "depths": [2,3,4,5],
         "widths": [2**n for n in range(2,9)],
         "repetitions": list(range(10)),
-        "properties": ["p1", "p2", "p3", "p4"],
+#        "properties": ["p1", "p2", "p3", "p4"],
         "n_synthetic_data_points": [2**n for n in range(10,15)],
-        "synthetic_data_sampling": ["qmc", "random_iid"],
+        "synthetic_data_sampling": ["random_iid"],
         "network_tau": [1],
         "network_a_prev": [1],
+        "training_iterations": ["early_stopping"]
     }
-    #training_iterations = ["early_stopping", 2000]
 
     logger.info(f"Using {PARALLELISM} cores.")
 
-    #for params in itertools.product(**hyperparameters.values())
-
-        #acas_xu = distill_verify_comparison_experiment(tau=1, a_prev=1)
+    keys = hyperparameters.keys()
+    vals = list(hyperparameters.values())
+    items = list(itertools.product(*vals))
+    with mp.Pool(PARALLELISM) as p:
+        results = list(tqdm.tqdm(p.imap(distill_verify_comparison_experiment, dict(zip(keys, items))), total=len(items)))
