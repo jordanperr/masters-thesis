@@ -6,6 +6,10 @@
 
 import time
 import logging
+import sys
+import subprocess
+import re
+import json
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,6 +19,7 @@ import tensorflow as tf
 import onnx
 import onnx_tf
 import onnxruntime
+import tf2onnx
 
 from pathlib import Path
 
@@ -26,18 +31,18 @@ class AcasXUNetwork:
     Wrapper class that loads an ACASXu network from the VNNComp 2021 data archive using onnx and onnx_tf.
     Makes easier the interaction with the network, such as reshaping inputs.
     """
-    def __init__(path):
-        acas_xu = onnx.load(path)
-        acas_xu = onnx_tf.backend.prepare(acas_xu)
+    def __init__(self, path):
+        self.acas_xu = onnx.load(path)
+        self.acas_xu = onnx_tf.backend.prepare(self.acas_xu)
 
     @classmethod
     def reshape_inputs(cls, inputs):
         n = inputs.shape[0]
         return inputs.reshape((n,1,1,5))
 
-    def run(inputs):
+    def run(self, inputs):
         inputs = AcasXUNetwork.reshape_inputs(inputs)
-        onnx_outputs = acas_xu.run(inputs)
+        onnx_outputs = self.acas_xu.run(inputs)
         return onnx_outputs.linear_7_Add
 
 #        inputs = (rng.random((n,1,1,5),dtype="float32")-0.5)*2
@@ -101,7 +106,7 @@ def distill(teacher:AcasXUNetwork,
     )
 
     ## Fit the student model using the synthetic data
-    student_model.fit(
+    history = student_model.fit(
         x=synthetic_inputs,
         y=synthetic_outputs,#synthetic_outputs, #- Using logits in the loss function requires a different loss metric, like KLDivergence. But I couldn't get it working immediately.
         epochs=500,
@@ -114,22 +119,82 @@ def distill(teacher:AcasXUNetwork,
 
     return student_model
 
-def verify(network, property, verifier):
-    """
-    use an external verification tool to verify the network
-    """
-    pass
+def check_closeness(student, teacher):
+    synthetic_inputs = (rng.random((2000,5),dtype="float32")-0.5)*2
+    teacher_outputs = teacher.run(synthetic_inputs)
+    student_outputs = student.predict(synthetic_inputs)
+    diff = np.sqrt(np.sum((teacher_outputs - student_outputs)**2, axis=1))
+    return diff
 
-def distill_verify_comparison_experiment(config):
-    # teacher = load_network(network_path)
+def write_tf_network_to_onnx_file(network, path):
+    #input_signature = [tf.TensorSpec([5], tf.float32, name='x')]
+    tf2onnx.convert.from_keras(network, output_path=path)
+
+def verify(network, property, timeout=600):
+    """
+    use an external verification tool to verify an ONNX network with respect to a property
+
+    inputs:
+    - network (str): Path to network in ONNX file format.
+    - property (str): Number of property to verify
+
+    returns:
+    - Runtime (Float)
+    - Result (String)
     
-    # # Classic Verification
-    # output = verify(student, property_path, timeout=600)
+    """
+    cmd = f"docker run -v /Users/jperrsau/cu-src/thesis/src/distill:/my_work nnenum_image python3 -m nnenum.nnenum /my_work/distill_before_verify_experiment/{network} /my_work/data/acasxu/prop_{property}.vnnlib"
+    print(cmd)
+    result = subprocess.getoutput(cmd)
+    print(result)
 
-    # # Distillation Verification
-    # student = distill(teacher, student_options)
-    # output = verify(student, property_path, timeout=600)
-    pass
+    if re.search("Proven safe before enumerate", result) != None:
+        runtime_re = 0.0
+        result_re = "Safe"
+    else:
+        runtime_re = re.search("Runtime: (\d+\.\d+)", result).groups(0)[0]
+        result_re = re.search("Result: ([a-zA-Z\s]+)", result).groups(0)[0]
+
+    return float(runtime_re), result_re
+
+def distill_verify_comparison_experiment(
+        tau, 
+        a_prev,
+        n_synthetic_data_points,
+        synthetic_data_sampling,
+        hidden_layer_width,
+        num_hidden_layers,
+        properties):
+    
+    # Read teacher network from disk or cache
+    teacher = load_vnncomp_2021_acasxu_network(tau, a_prev)
+
+    # Create student network using network distillation
+    start = time.perf_counter()
+    student = distill(teacher,
+        n_synthetic_data_points,
+        synthetic_data_sampling,
+        hidden_layer_width,
+        num_hidden_layers)
+    distill_time = time.perf_counter() - start
+
+    distill_mse = check_closeness(student, teacher)
+
+    output = {
+        "loss": student.loss,
+        "distill_time": distill_time,
+        "distill_mse": distill_mse,
+    }
+
+    # Write student network to disk
+    write_tf_network_to_onnx_file(student, "./tmp_onnx_network")
+
+    for property in properties:
+        verify_time, verify_result = verify("./tmp_onnx_network", property)
+        output[f"verify_time_{property}"] = verify_time
+        output[f"verify_result_{property}"] = verify_result
+
+    return output
 
 def refinement_loop_experiment():
     pass
@@ -141,22 +206,27 @@ if __name__=="__main__":
 
     PARALLELISM = 8
 
-    hyperparameters = {
-        "depths": [2,3,4,5],
-        "widths": [2**n for n in range(2,9)],
-        "repetitions": list(range(10)),
-#        "properties": ["p1", "p2", "p3", "p4"],
-        "n_synthetic_data_points": [2**n for n in range(10,15)],
-        "synthetic_data_sampling": ["random_iid"],
-        "network_tau": [1],
-        "network_a_prev": [1],
-        "training_iterations": ["early_stopping"]
-    }
+    print( distill_verify_comparison_experiment(1,1,2000,"random_iid", 4,4,["1"]) )
 
-    logger.info(f"Using {PARALLELISM} cores.")
+    # hyperparameters = {
+    #     "depths": [2,3,4,5],
+    #     "widths": [2**n for n in range(2,9)],
+    #     "repetitions": list(range(10)),
+    #     "properties": [["p1", "p2", "p3", "p4"]],
+    #     "n_synthetic_data_points": [2**n for n in range(10,15)],
+    #     "synthetic_data_sampling": ["random_iid"],
+    #     "network_tau": [1],
+    #     "network_a_prev": [1],
+    #     "training_iterations": ["early_stopping"]
+    # }
 
-    keys = hyperparameters.keys()
-    vals = list(hyperparameters.values())
-    items = list(itertools.product(*vals))
-    with mp.Pool(PARALLELISM) as p:
-        results = list(tqdm.tqdm(p.imap(distill_verify_comparison_experiment, dict(zip(keys, items))), total=len(items)))
+    # logger.info(f"Using {PARALLELISM} cores.")
+
+    # keys = hyperparameters.keys()
+    # vals = list(hyperparameters.values())
+    # items = list(itertools.product(*vals))
+    # with mp.Pool(PARALLELISM) as p:
+    #     results = list(tqdm.tqdm(p.imap(distill_verify_comparison_experiment, dict(zip(keys, items))), total=len(items)))
+
+    # with open("result.json", "w") as result_file:
+    #     json.dump(results, result_file)

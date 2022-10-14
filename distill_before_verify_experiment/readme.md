@@ -21,6 +21,11 @@ Install dependencies
 pip install -r requirements.txt
 ```
 
+Point to NNENUM installation
+```
+export PYTHONPATH=/Users/jperrsau/cu-src/thesis/src/nnenum/src:$PYTHONPATH
+```
+
 Run the experiment
 ```
 python 10_10_2022_experiment.py
