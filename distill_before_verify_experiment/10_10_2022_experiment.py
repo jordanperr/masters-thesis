@@ -164,7 +164,8 @@ def distill_verify_comparison_experiment(
         synthetic_data_sampling,
         hidden_layer_width,
         num_hidden_layers,
-        properties):
+        properties,
+        repetition):
     
     # Read teacher network from disk or cache
     teacher = load_vnncomp_2021_acasxu_network(tau, a_prev)
@@ -196,8 +197,8 @@ def distill_verify_comparison_experiment(
 
     return output
 
-def refinement_loop_experiment():
-    pass
+def run_experiment(params):
+    return distill_verify_comparison_experiment(**params)
 
 if __name__=="__main__":
     import multiprocessing as mp
@@ -206,27 +207,38 @@ if __name__=="__main__":
 
     PARALLELISM = 8
 
-    print( distill_verify_comparison_experiment(1,1,2000,"random_iid", 4,4,["1"]) )
+    #print( distill_verify_comparison_experiment(1,1,2000,"random_iid", 4,4,["1"]) )
 
     # hyperparameters = {
-    #     "depths": [2,3,4,5],
-    #     "widths": [2**n for n in range(2,9)],
-    #     "repetitions": list(range(10)),
+    #     "num_hidden_layers": [2,3,4,5],
+    #     "hidden_layer_width": [2**n for n in range(2,9)],
+    #     "repetition": list(range(10)),
     #     "properties": [["p1", "p2", "p3", "p4"]],
     #     "n_synthetic_data_points": [2**n for n in range(10,15)],
     #     "synthetic_data_sampling": ["random_iid"],
-    #     "network_tau": [1],
-    #     "network_a_prev": [1],
-    #     "training_iterations": ["early_stopping"]
+    #     "tau": [1],
+    #     "a_prev": [1]
     # }
 
-    # logger.info(f"Using {PARALLELISM} cores.")
+    hyperparameters = {
+        "num_hidden_layers": [5],
+        "hidden_layer_width": [2**n for n in [8]],
+        "repetition": [1],
+        "properties": [["1", "2", "3", "4"]],
+        "n_synthetic_data_points": [2**n for n in [10]],
+        "synthetic_data_sampling": ["random_iid"],
+        "tau": [1],
+        "a_prev": [1]
+    }
 
-    # keys = hyperparameters.keys()
-    # vals = list(hyperparameters.values())
-    # items = list(itertools.product(*vals))
-    # with mp.Pool(PARALLELISM) as p:
-    #     results = list(tqdm.tqdm(p.imap(distill_verify_comparison_experiment, dict(zip(keys, items))), total=len(items)))
+    logger.info(f"Using {PARALLELISM} cores.")
 
-    # with open("result.json", "w") as result_file:
-    #     json.dump(results, result_file)
+    keys = hyperparameters.keys()
+    vals = list(hyperparameters.values())
+    items = list(itertools.product(*vals))
+    items = [dict(zip(keys, item)) for item in items]
+    with mp.Pool(PARALLELISM) as p:
+        results = list(tqdm.tqdm(p.imap(run_experiment, items), total=len(items)))
+
+    with open("result.json", "w") as result_file:
+        json.dump(results, result_file)
