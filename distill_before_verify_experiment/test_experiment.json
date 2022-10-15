@@ -1,0 +1,12 @@
+{
+    "hyperparameters": {
+        "num_hidden_layers": [2],
+        "hidden_layer_width": [2],
+        "repetition": [1,2,3,4],
+        "n_synthetic_data_points": [2048],
+        "synthetic_data_sampling": ["random_iid"],
+        "tau": [1],
+        "a_prev": [1]
+    },
+    "properties": ["1","2","3","4"]
+}

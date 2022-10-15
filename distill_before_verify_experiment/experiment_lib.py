@@ -117,7 +117,7 @@ def distill(teacher:AcasXUNetwork,
         ]
     )
 
-    return student_model
+    return student_model, history
 
 def check_closeness(student, teacher):
     synthetic_inputs = (rng.random((2000,5),dtype="float32")-0.5)*2

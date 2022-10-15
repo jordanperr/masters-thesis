@@ -26,9 +26,11 @@ Point to NNENUM installation
 export PYTHONPATH=/Users/jperrsau/cu-src/thesis/src/nnenum/src:$PYTHONPATH
 ```
 
+Write a configuration file like `test_experiment.json`
+
 Run the experiment
 ```
-python 10_10_2022_experiment.py
+bash 0_run_full_experiment.sh test_experiment
 ```
 
 Inspect output in `./output`
