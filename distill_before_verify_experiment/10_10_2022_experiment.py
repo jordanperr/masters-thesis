@@ -123,8 +123,10 @@ def check_closeness(student, teacher):
     synthetic_inputs = (rng.random((2000,5),dtype="float32")-0.5)*2
     teacher_outputs = teacher.run(synthetic_inputs)
     student_outputs = student.predict(synthetic_inputs)
-    diff = np.sqrt(np.sum((teacher_outputs - student_outputs)**2, axis=1))
-    return diff
+    mse = np.sqrt(np.sum(
+        np.sqrt(np.sum((teacher_outputs - student_outputs)**2, axis=1))**2
+        ))
+    return mse
 
 def write_tf_network_to_onnx_file(network, path):
     #input_signature = [tf.TensorSpec([5], tf.float32, name='x')]
@@ -177,14 +179,13 @@ def distill_verify_comparison_experiment(
         synthetic_data_sampling,
         hidden_layer_width,
         num_hidden_layers)
-    distill_time = time.perf_counter() - start
 
+    distill_time = time.perf_counter() - start
     distill_mse = check_closeness(student, teacher)
 
     output = {
-        "loss": student.loss,
         "distill_time": distill_time,
-        "distill_mse": distill_mse,
+        "distill_mse": float(distill_mse),
     }
 
     # Write student network to disk
@@ -221,11 +222,11 @@ if __name__=="__main__":
     # }
 
     hyperparameters = {
-        "num_hidden_layers": [5],
+        "num_hidden_layers": [2,5],
         "hidden_layer_width": [2**n for n in [8]],
         "repetition": [1],
         "properties": [["1", "2", "3", "4"]],
-        "n_synthetic_data_points": [2**n for n in [10]],
+        "n_synthetic_data_points": [2**n for n in [10,14]],
         "synthetic_data_sampling": ["random_iid"],
         "tau": [1],
         "a_prev": [1]
