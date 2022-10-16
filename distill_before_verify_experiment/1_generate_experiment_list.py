@@ -35,12 +35,12 @@ pathlib.Path(sys.argv[1]).mkdir(parents=True, exist_ok=False)
 items.to_csv(sys.argv[1]+"/index.csv", index=False)
 
 config["run_info"] = {
-    "hostname": platform.node(),
-    "timestamp": datetime.datetime.now().timestamp(),
-    "distill_git_hash": subprocess.check_output("git log -1 --format=\"%H\"")
+    "hostname": str(platform.node()),
+    "timestamp": str(datetime.datetime.now().timestamp()),
+    "distill_git_hash": str(subprocess.check_output(["git", "log", "-1", "--format=\"%H\""]))
 }
 
-with open(sys.argv[1]+"/config.json") as fp:
+with open(sys.argv[1]+"/config.json", "w") as fp:
     json.dump(config, fp)
 
 print(f"Generated {len(items)} experiments")
