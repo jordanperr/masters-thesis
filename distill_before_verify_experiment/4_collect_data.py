@@ -3,6 +3,7 @@ import json
 import re
 import sys
 
+print("4_collect_data.py")
 
 name=sys.argv[1]
 

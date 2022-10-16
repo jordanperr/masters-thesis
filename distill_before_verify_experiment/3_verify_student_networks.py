@@ -46,7 +46,9 @@ def run_verify(config):
             f.write("\npython_time:"+str(verify_time))
 
 if __name__=="__main__":
+    print("3_verify_student_networks.py")
+
     experiments = pd.read_csv(path+"/index.csv").to_dict("records")
 
-    with mp.Pool(4) as p:
+    with mp.Pool(global_config["nnenum_parallelism"]) as p:
         results = list(tqdm.tqdm(p.imap(run_verify, experiments), total=len(experiments)))

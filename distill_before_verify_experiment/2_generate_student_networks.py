@@ -17,8 +17,12 @@ import multiprocessing as mp
 import tqdm
 import time
 import pathlib
+import json
 
 path = sys.argv[1]
+
+with open(sys.argv[1]+".json") as config_fp:
+    global_config = json.load(config_fp)
 
 def run_distill(params):
 
@@ -47,7 +51,7 @@ def run_distill(params):
     history = pd.DataFrame(history.history)
     history.to_csv(f"{path}/{params['uuid']}/student.history.csv", index=False)
 
-    stats = history.iloc[-1:]
+    stats = history.iloc[-1:].copy()
     stats["distill_time"] = distill_time
     stats["distill_mse"] = float(distill_mse)
 
@@ -56,7 +60,9 @@ def run_distill(params):
 
 ### Main Loop
 if __name__=="__main__":
+    print("2_generate_student_networks.py")
+
     experiments = pd.read_csv(path+"/index.csv").to_dict("records")
 
-    with mp.Pool(4) as p:
+    with mp.Pool(global_config["distill_parallelism"]) as p:
         results = list(tqdm.tqdm(p.imap(run_distill, experiments), total=len(experiments)))
