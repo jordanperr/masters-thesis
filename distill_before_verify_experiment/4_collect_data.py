@@ -25,6 +25,7 @@ for row in index.itertuples():
             result[f"prop.{property}.python_time"] = float(python_time.split(":")[1])
         
         with open(f"{name}/{row.uuid}/verify.{property}.stdout", "r") as fp:
+            print(f"{name}/{row.uuid}/verify.{property}.stdout")
             contents = fp.read()
             if re.search("Proven safe before enumerate", contents) != None:
                 runtime_re = None

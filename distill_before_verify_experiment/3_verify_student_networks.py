@@ -37,6 +37,8 @@ def run_verify(config):
             property=property,
             result_path=result_path)
         
+        print(cmd)
+        
         start = time.perf_counter()
         subprocess.getoutput(cmd)
         verify_time = time.perf_counter() - start
