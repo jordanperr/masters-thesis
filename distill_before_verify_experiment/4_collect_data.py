@@ -21,20 +21,24 @@ for row in index.itertuples():
     for property in config["properties"]:
         with open(f"{name}/{row.uuid}/verify.{property}.result", "r") as fp:
             verified_result, python_time = [a.strip() for a in fp.readlines()]
-            result[f"prop.{property}.result"] = verified_result
+            result[f"prop.{property}.result"] = verified_result.strip()
             result[f"prop.{property}.python_time"] = float(python_time.split(":")[1])
         
         with open(f"{name}/{row.uuid}/verify.{property}.stdout", "r") as fp:
             contents = fp.read()
-            if re.search("Proven safe before enumerate", contents) != None:
-                runtime_re = None
+            print(f"{name}/{row.uuid}/verify.{property}.stdout")
+            if re.search("Timeout \(\d+.\d+\) reached during execution", contents) != None:
+                runtime_re = "-2"
+                result_re = "Unknown - Timeout Reached"
+            elif re.search("Proven safe before enumerate", contents) != None:
+                runtime_re = "-1"
                 result_re = "Safe"
             else:
                 runtime_re = re.search("Runtime: (\d+\.\d+)", contents).groups(0)[0]
                 result_re = re.search("Result: ([a-zA-Z\s]+)", contents).groups(0)[0]
 
-            result[f"prop.{property}.reported_runtime"] = runtime_re
-            result[f"prop.{property}.stdout_result"] = result_re
+            result[f"prop.{property}.reported_runtime"] = runtime_re.strip()
+            result[f"prop.{property}.stdout_result"] = result_re.strip()
 
     results.append(result)
 

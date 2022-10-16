@@ -2,12 +2,13 @@
     "hyperparameters": {
         "num_hidden_layers": [2,4,6,8],
         "hidden_layer_width": [4,25,161,1024],
-        "repetition": [1,2,3,4,5,6,7,8,9,10],
+        "repetition": [1,2,3,4],
         "n_synthetic_data_points": [2048],
         "synthetic_data_sampling": ["random_iid"],
         "tau": [1],
         "a_prev": [1]
     },
     "properties": ["1","2","3","4"],
-    "nnenum_cmd": "python3 -m nnenum.nnenum {network_path} ../data/acasxu/prop_{property}.vnnlib 600 {result_path} > {stdout_path}"
-}
+    "distill_parallelism": 4,
+    "nnenum_cmd": "docker run -v /Users/jperrsau/cu-src/thesis/src/distill:/my_work nnenum_image bash -c \"python3 -m nnenum.nnenum /my_work/distill_before_verify_experiment/{network_path} /my_work/data/acasxu/prop_{property}.vnnlib 600 /my_work/distill_before_verify_experiment/{result_path} > /my_work/distill_before_verify_experiment/{stdout_path}\"",
+    "nnenum_parallelism": 1}
