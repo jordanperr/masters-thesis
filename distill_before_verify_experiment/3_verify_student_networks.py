@@ -15,8 +15,12 @@ import multiprocessing as mp
 import tqdm
 import subprocess
 import time
+import json
 
 path = sys.argv[1]
+
+with open(sys.argv[1]+".json") as config_fp:
+    global_config = json.load(config_fp)
 
 def run_verify(config):
 
@@ -28,8 +32,10 @@ def run_verify(config):
         result_path = path+f"/{config['uuid']}/verify.{property}.result"
         stdout_path = path+f"/{config['uuid']}/verify.{property}.stdout"
 
-        cmd = f"docker run -v /Users/jperrsau/cu-src/thesis/src/distill:/my_work nnenum_image bash -c \"python3 -m nnenum.nnenum /my_work/distill_before_verify_experiment/{network_path} /my_work/data/acasxu/prop_{property}.vnnlib 600 /my_work/distill_before_verify_experiment/{result_path} > /my_work/distill_before_verify_experiment/{stdout_path}\""
-        #print(cmd)
+        cmd = global_config["nnenum_cmd"].format(network_path=network_path,
+            stdout_path=stdout_path,
+            property=property,
+            result_path=result_path)
         
         start = time.perf_counter()
         subprocess.getoutput(cmd)
