@@ -2,3 +2,4 @@
 dmp_experiments/dmp_experiments
 *.pmlb_cache
 *.DS_Store
+distill_before_verify_experiment/*_experiment/
