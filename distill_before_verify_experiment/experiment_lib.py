@@ -73,7 +73,7 @@ def distill(teacher:AcasXUNetwork,
     ## Generate synthetic validation data for distillation process
     synthetic_inputs_val = (rng.random((int(n_synthetic_data_points*0.2),5),dtype="float32")-0.5)*2
     ## Run the teacher network on the synthetic input data
-    synthetic_outputs_val = teacher.run(synthetic_inputs)
+    synthetic_outputs_val = teacher.run(synthetic_inputs_val)
     
     ## Create student network
     ### Input Layer
