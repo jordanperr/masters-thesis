@@ -67,9 +67,13 @@ def distill(teacher:AcasXUNetwork,
     """
     ## Generate synthetic input data for distillation process
     synthetic_inputs = (rng.random((n_synthetic_data_points,5),dtype="float32")-0.5)*2
-
     ## Run the teacher network on the synthetic input data
     synthetic_outputs = teacher.run(synthetic_inputs)
+
+    ## Generate synthetic validation data for distillation process
+    synthetic_inputs_val = (rng.random((int(n_synthetic_data_points*0.2),5),dtype="float32")-0.5)*2
+    ## Run the teacher network on the synthetic input data
+    synthetic_outputs_val = teacher.run(synthetic_inputs_val)
     
     ## Create student network
     ### Input Layer
@@ -100,7 +104,7 @@ def distill(teacher:AcasXUNetwork,
     student_model.compile(
         loss=tf.keras.losses.MeanSquaredError(),
         #loss=tf.keras.losses.KLDivergence(),
-        metrics=[tf.keras.metrics.MeanSquaredError()],
+        metrics=[tf.keras.metrics.MeanSquaredError(),tf.keras.metrics.KLDivergence(), tf.keras.metrics.CategoricalCrossentropy()],
         optimizer=tf.keras.optimizers.Adam(0.001)
     )
 
@@ -111,9 +115,10 @@ def distill(teacher:AcasXUNetwork,
         epochs=500,
         batch_size=128,
         verbose=0,
+        validation_data = (synthetic_inputs_val, synthetic_outputs_val),
         callbacks=[
-            tf.keras.callbacks.EarlyStopping(monitor='loss', patience=20)
-        ]
+            tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+        ],
     )
 
     return student_model, history

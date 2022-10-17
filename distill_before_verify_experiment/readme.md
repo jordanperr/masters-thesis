@@ -38,3 +38,23 @@ Inspect output in `./output`
 ## Docker Image
 
 A pre-built docker image will be made available for download on github container registry.
+
+## Scratch Notebooks
+
+## Experiments
+
+### exp_depth_10_16_2022
+Full distill/verify experiment using 7 depths and 30 repetitions. Loss monitored was MSE train loss.
+Run on Jordan's Macbook.
+
+### exp_ndata_10_16_2022
+Full distill/verify experiment using 7 number of syntheic data and 30 repetitions. Loss monitored was MSE train loss.
+Run on Jordan's Macbook.
+
+### exp_depth_10_17_2022
+Full distill/verify experiment using 7 depths and 30 repetitions. Loss monitored was MSE train loss.
+Run on Jordan's Macbook.
+
+### exp_ndata_10_17_2022
+Full distill/verify experiment using 7 number of syntheic data and 30 repetitions. Loss monitored was MSE train loss.
+Run on Jordan's Macbook.
