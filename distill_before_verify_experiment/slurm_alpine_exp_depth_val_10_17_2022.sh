@@ -7,6 +7,8 @@ cd /home/jope8154/projects/masters_thesis/distill/distill_before_verify_experime
 conda activate ./distill-env
 
 export PYTHONPATH=/home/jope8154/projects/masters_thesis/src/nnenum/src:$PYTHONPATH
+export OPENBLAS_NUM_THREADS=1
+export OMP_NUM_THREADS=1
 
 bash 0_run_full_experiment.sh exp_alpine_depth_val_10_17_2022 
 
