@@ -5,3 +5,4 @@ dmp_experiments/dmp_experiments
 distill_before_verify_experiment/*_experiment/
 data
 output_data
+lib
