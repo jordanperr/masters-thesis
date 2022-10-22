@@ -9,7 +9,7 @@
         "a_prev": [1]
     },
     "properties": ["1","2","3","4"],
-    "distill_parallelism": 2,
-    "nnenum_cmd": "python3 -m nnenum.nnenum {network_path} ../data/acasxu/prop_{property}.vnnlib 600 {result_path} > {stdout_path}", 
-    "nnenum_parallelism": 2
+    "distill_parallelism": 6,
+    "nnenum_cmd": "python3 -m nnenum.nnenum {network_path} ../data/acasxu/prop_{property}.vnnlib 600 {result_path} > {stdout_path}",
+    "nnenum_parallelism": 6
 }

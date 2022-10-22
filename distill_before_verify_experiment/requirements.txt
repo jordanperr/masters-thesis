@@ -1,0 +1,16 @@
+numpy
+scipy
+threadpoolctl
+onnx
+onnxruntime
+skl2onnx
+swiglpk
+termcolor
+pandas
+tqdm
+tensorflow==2.9.1
+tensorflow-probability==0.17.0
+tf2onnx==1.11.1
+onnx-tf
+tf2onnx
+packaging

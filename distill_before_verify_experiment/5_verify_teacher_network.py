@@ -57,5 +57,5 @@ if __name__=="__main__":
     experiments["uuid"] = experiments.apply(lambda _: uuid.uuid4(), axis=1)
     experiments = experiments.to_dict("records")
 
-    with mp.Pool(4) as p:
+    with mp.Pool(config["nnenum_parallelism"]) as p:
         results = list(tqdm.tqdm(p.imap(run_verify, experiments), total=len(experiments)))

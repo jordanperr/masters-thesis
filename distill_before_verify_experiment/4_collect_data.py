@@ -25,6 +25,7 @@ for row in index.itertuples():
             result[f"prop.{property}.python_time"] = float(python_time.split(":")[1])
         
         with open(f"{name}/{row.uuid}/verify.{property}.stdout", "r") as fp:
+            print(f"{name}/{row.uuid}/verify.{property}.stdout")
             contents = fp.read()
             print(f"{name}/{row.uuid}/verify.{property}.stdout")
             if re.search("Timeout \(\d+.\d+\) reached during execution", contents) != None:
