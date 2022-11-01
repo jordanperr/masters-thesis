@@ -104,7 +104,10 @@ def distill(teacher:AcasXUNetwork,
     student_model.compile(
         loss=tf.keras.losses.MeanSquaredError(),
         #loss=tf.keras.losses.KLDivergence(),
-        metrics=[tf.keras.metrics.MeanSquaredError(),tf.keras.metrics.KLDivergence(), tf.keras.metrics.CategoricalCrossentropy()],
+        metrics=[tf.keras.metrics.MeanSquaredError(),
+                 tf.keras.metrics.KLDivergence(),
+                 tf.keras.metrics.CategoricalCrossentropy(),
+                 tf.keras.metrics.CategoricalAccuracy()],
         optimizer=tf.keras.optimizers.Adam(0.001)
     )
 
