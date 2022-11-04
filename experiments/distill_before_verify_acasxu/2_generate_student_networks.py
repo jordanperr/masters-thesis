@@ -18,6 +18,7 @@ import tqdm
 import time
 import pathlib
 import json
+from keras.utils.layer_utils import count_params
 
 path = sys.argv[1]
 
@@ -42,8 +43,6 @@ def run_distill(params):
 
     distill_time = time.perf_counter() - start
 
-    distill_mse = check_closeness(student, teacher)
-
     # Write student network to disk
     write_tf_network_to_onnx_file(student, f"{path}/{params['uuid']}/student.onnx")
 
@@ -53,7 +52,7 @@ def run_distill(params):
 
     stats = history.iloc[-1:].copy()
     stats["distill_time"] = distill_time
-    stats["distill_mse"] = float(distill_mse)
+    stats["trainable_parameters"] = count_params(student.trainable_weights)
 
     stats.to_csv(f"{path}/{params['uuid']}/student.stats.csv", index=False)
 

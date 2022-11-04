@@ -29,10 +29,10 @@ for row in index.itertuples():
             contents = fp.read()
             print(f"{name}/{row.uuid}/verify.{property}.stdout")
             if re.search("Timeout \(\d+.\d+\) reached during execution", contents) != None:
-                runtime_re = "-2"
+                runtime_re = "TimeoutReached"
                 result_re = "Unknown - Timeout Reached"
             elif re.search("Proven safe before enumerate", contents) != None:
-                runtime_re = "-1"
+                runtime_re = "SafeBeforeEnumerate"
                 result_re = "Safe"
             else:
                 runtime_re = re.search("Runtime: (\d+\.\d+)", contents).groups(0)[0]

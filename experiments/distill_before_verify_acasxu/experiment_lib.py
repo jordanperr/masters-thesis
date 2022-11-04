@@ -46,7 +46,7 @@ class AcasXUNetwork:
 
 #        inputs = (rng.random((n,1,1,5),dtype="float32")-0.5)*2
 
-def load_vnncomp_2021_acasxu_network(tau, a_prev, path="../data/acasxu"):
+def load_vnncomp_2021_acasxu_network(tau, a_prev, path="../../data/acasxu"):
     """
     Load an ACAS Xu neural network in onnx format from the VNNComp 2021 data archive.
     Katz, G., Barrett, C., Dill, D.L., Julian, K., Kochenderfer, M.J. (2017). Reluplex: An Efficient SMT Solver for Verifying Deep Neural Networks. In: Majumdar, R., Kunčak, V. (eds) Computer Aided Verification. CAV 2017. Lecture Notes in Computer Science(), vol 10426. Springer, Cham. https://doi.org/10.1007/978-3-319-63387-9_5
@@ -66,12 +66,12 @@ def distill(teacher:AcasXUNetwork,
     - student_model(tf.model)
     """
     ## Generate synthetic input data for distillation process
-    synthetic_inputs = (rng.random((n_synthetic_data_points,5),dtype="float32")-0.5)*2
+    synthetic_inputs = (rng.random((n_synthetic_data_points,5),dtype="float32")-0.5)
     ## Run the teacher network on the synthetic input data
     synthetic_outputs = teacher.run(synthetic_inputs)
 
     ## Generate synthetic validation data for distillation process
-    synthetic_inputs_val = (rng.random((int(n_synthetic_data_points*0.2),5),dtype="float32")-0.5)*2
+    synthetic_inputs_val = (rng.random((int(n_synthetic_data_points*0.2),5),dtype="float32")-0.5)
     ## Run the teacher network on the synthetic input data
     synthetic_outputs_val = teacher.run(synthetic_inputs_val)
     
@@ -102,6 +102,7 @@ def distill(teacher:AcasXUNetwork,
 
     ### Julian K uses an asymmetric loss function based on MSE. We use MSE here for now.
     student_model.compile(
+        #loss=tf.keras.metrics.SparseCategoricalCrossentropy(),
         loss=tf.keras.losses.MeanSquaredError(),
         #loss=tf.keras.losses.KLDivergence(),
         metrics=[tf.keras.metrics.MeanSquaredError(),

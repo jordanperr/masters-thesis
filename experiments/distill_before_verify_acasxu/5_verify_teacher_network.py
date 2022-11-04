@@ -28,11 +28,9 @@ def run_verify(params):
 
     pathlib.Path(name+f"/teacher/{params['uuid']}").mkdir(parents=True, exist_ok=True)
 
-    network_path = str(pathlib.Path("../data")/f"acasxu/ACASXU_run2a_{params['tau']}_{params['a_prev']}_batch_2000.onnx")
+    network_path = str(pathlib.Path("../../data")/f"acasxu/ACASXU_run2a_{params['tau']}_{params['a_prev']}_batch_2000.onnx")
 
-    properties = ["1","2","3","4"]
-
-    for property in properties:
+    for property in config["properties"]:
         result_path = name+f"/teacher/{params['uuid']}/verify.{property}.result"
         stdout_path = name+f"/teacher/{params['uuid']}/verify.{property}.stdout"
 

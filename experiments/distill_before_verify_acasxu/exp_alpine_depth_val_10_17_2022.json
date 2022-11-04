@@ -10,5 +10,5 @@
     },
     "properties": ["1","2","3","4"],
     "distill_parallelism": 10,
-    "nnenum_cmd": "python3 -m nnenum.nnenum {network_path} ../data/acasxu/prop_{property}.vnnlib 600 {result_path} > {stdout_path}", 
+    "nnenum_cmd": "python3 -m nnenum.nnenum {network_path} ../../data/acasxu/prop_{property}.vnnlib 600 {result_path} > {stdout_path}", 
     "nnenum_parallelism":10}
