@@ -10,5 +10,5 @@
     },
     "properties": ["1","2","3","4"],
     "distill_parallelism": 4,
-    "nnenum_cmd": "docker run --cpus=1 -v /Users/jperrsau/cu-src/thesis/src/distill:/my_work nnenum_image bash -c \"python3 -m nnenum.nnenum /my_work/distill_before_verify_experiment/{network_path} /my_work/data/acasxu/prop_{property}.vnnlib 600 /my_work/distill_before_verify_experiment/{result_path} > /my_work/distill_before_verify_experiment/{stdout_path}\"",
+    "nnenum_cmd": "docker run --cpus=1 -v /Users/jperrsau/cu-src/thesis/src/distill:/my_work nnenum_image bash -c \"python3 -m nnenum.nnenum /my_work/experiments/distill_before_verify_acasxu/{network_path} /my_work/data/acasxu/prop_{property}.vnnlib 600 /my_work/experiments/distill_before_verify_acasxu/{result_path} > /my_work/experiments/distill_before_verify_acasxu/{stdout_path}\"",
     "nnenum_parallelism": 4}
