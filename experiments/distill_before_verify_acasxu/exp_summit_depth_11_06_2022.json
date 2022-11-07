@@ -9,9 +9,9 @@
         "a_prev": [1]
     },
     "properties": ["1","2","3","4","5","6","7","8","9","10"],
-    "distill_parallelism": 8,
-    "nnenum_cmd": "python3 -m nnenum.nnenum {network_path} {property_path} {timeout} {result_path} 1 > {stdout_path}",
-    "nnenum_parallelism": 8,
+    "distill_parallelism": 10,
+    "nnenum_cmd": "python3 -m nnenum.nnenum {network_path} {property_path} {timeout} {result_path} 2 > {stdout_path}",
+    "nnenum_parallelism": 10,
     "nnenum_timeout": 600,
     "output_dir":"/projects/jope8154/masters_thesis/distill/output_data/exp_summit_depth_11_06_2022",
     "acasxu_dir":"/projects/jope8154/masters_thesis/distill/data/acasxu"

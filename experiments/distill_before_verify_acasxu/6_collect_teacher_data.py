@@ -46,7 +46,7 @@ for uuid in uuids:
                     runtime_re = "0.0"
                     result_re = "Safe"
                 else:
-                    runtime_re = re.search("Runtime: (\d+\.\d+)", contents).groups(0)[0]
+                    runtime_re = re.search("Runtime:.+(\d+\.\d+) sec", contents).groups(0)[0]
                     result_re = re.search("Result: ([a-zA-Z\s]+)", contents).groups(0)[0]
 
                 result[f"prop.{property}.reported_runtime"] = runtime_re.strip()

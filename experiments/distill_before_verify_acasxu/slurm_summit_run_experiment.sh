@@ -23,4 +23,6 @@ export OMP_NUM_THREADS=1
 
 bash 0_run_full_experiment.sh $DISTILL_JOB_NAME.json
 
+touch slurm-$SLURM_JOB_ID.$DISTILL_JOB_NAME.isdone
+
 exit 0
