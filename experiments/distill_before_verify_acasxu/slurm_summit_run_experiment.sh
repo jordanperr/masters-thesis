@@ -12,10 +12,10 @@ module purge
 module load anaconda
 conda activate /home/jope8154/projects/masters_thesis/distill-env
 
-cd /home/jope8154/projects/masters_thesis/distill/experiments/distill_before_verify_experiment
+cd /projects/jope8154/masters_thesis/distill/experiments/distill_before_verify_acasxu
 
-lscpu > slurm_lscpu.$DISTILL_JOB_NAME.txt
-conda list --export > slurm_requirements_freeze.$DISTILL_JOB_NAME.txt
+lscpu > slurm-$SLURM_JOB_ID.$DISTILL_JOB_NAME.lscpu.txt
+conda list --export > slurm-$SLURM_JOB_ID.$DISTILL_JOB_NAME.conda-requirements-frozen.txt
 
 export PYTHONPATH=/home/jope8154/projects/masters_thesis/src/nnenum/src:$PYTHONPATH
 export OPENBLAS_NUM_THREADS=1
