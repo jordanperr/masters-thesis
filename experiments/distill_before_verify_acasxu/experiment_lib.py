@@ -23,7 +23,7 @@ import tf2onnx
 from pathlib import Path
 
 logger = logging.getLogger()
-rng = np.random.default_rng(seed=42)
+#rng = np.random.default_rng()
 
 class AcasXUNetwork:
     """
@@ -61,7 +61,8 @@ def distill_using_only_crossentropy_loss(teacher:AcasXUNetwork,
             num_hidden_layers,
             batch_size=2**10,
             epochs=500,
-            verbose=0):
+            verbose=0,
+            seed=42):
     """
     Data-free distillation (compression) of teacher network using only the crossentropy loss.
     Same method as is used in notebooks/thesis_figures/acasxu-distillation
@@ -69,6 +70,7 @@ def distill_using_only_crossentropy_loss(teacher:AcasXUNetwork,
     Returns:
     - student_model(tf.model)
     """
+    rng = np.random.default_rng(seed=seed)
     ## Generate synthetic input data for distillation process
     synthetic_inputs = (rng.random((n_synthetic_data_points,5),dtype="float32")-0.5)
     ## Run the teacher network on the synthetic input data
@@ -216,14 +218,14 @@ def distill(teacher:AcasXUNetwork,
 
     return student_model, history
 
-def check_closeness(student, teacher):
-    synthetic_inputs = (rng.random((2000,5),dtype="float32")-0.5)*2
-    teacher_outputs = teacher.run(synthetic_inputs)
-    student_outputs = student.predict(synthetic_inputs)
-    mse = np.sqrt(np.sum(
-        np.sqrt(np.sum((teacher_outputs - student_outputs)**2, axis=1))**2
-        ))
-    return mse
+# def check_closeness(student, teacher):
+#     synthetic_inputs = (rng.random((2000,5),dtype="float32")-0.5)*2
+#     teacher_outputs = teacher.run(synthetic_inputs)
+#     student_outputs = student.predict(synthetic_inputs)
+#     mse = np.sqrt(np.sum(
+#         np.sqrt(np.sum((teacher_outputs - student_outputs)**2, axis=1))**2
+#         ))
+#     return mse
 
 def write_tf_network_to_onnx_file(network, path):
     #input_signature = [tf.TensorSpec([5], tf.float32, name='x')]

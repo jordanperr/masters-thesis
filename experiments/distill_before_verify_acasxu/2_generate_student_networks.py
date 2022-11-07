@@ -25,7 +25,15 @@ with open(sys.argv[1]) as config_fp:
 
 path = global_config["output_dir"]
 
+import tensorflow as tf
+
+tf.config.set_soft_device_placement(True)
+tf.config.threading.set_intra_op_parallelism_threads(2)
+tf.config.threading.set_inter_op_parallelism_threads(2)
+
 def run_distill(params):
+
+    tf.keras.utils.set_random_seed(params["seed"])
 
     pathlib.Path(path+f"/{params['uuid']}").mkdir(parents=True, exist_ok=False)
 
@@ -39,7 +47,8 @@ def run_distill(params):
         params["n_synthetic_data_points"],
         params["synthetic_data_sampling"],
         params["hidden_layer_width"],
-        params["num_hidden_layers"])
+        params["num_hidden_layers"],
+        seed=params["seed"])
 
     distill_time = time.perf_counter() - start
 
