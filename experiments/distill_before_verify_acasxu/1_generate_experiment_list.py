@@ -19,7 +19,7 @@ items = list(itertools.product(*vals))
 items = [dict(zip(keys, item)) for item in items]
 items = pd.DataFrame(items)
 items['uuid'] = items.apply(lambda _: uuid.uuid4(), axis=1)
-items['seed'] = items.apply(lambda _: random.randint(-64000,64000), axis=1)
+items['seed'] = items.apply(lambda _: random.randint(0,2**16), axis=1)
 
 pathlib.Path(config["output_dir"]).mkdir(parents=True, exist_ok=False)
 items.to_csv(config["output_dir"]+"/index.csv", index=False)

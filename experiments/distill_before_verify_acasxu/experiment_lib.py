@@ -23,7 +23,7 @@ import tf2onnx
 from pathlib import Path
 
 logger = logging.getLogger()
-#rng = np.random.default_rng()
+rng = np.random.default_rng()
 
 class AcasXUNetwork:
     """

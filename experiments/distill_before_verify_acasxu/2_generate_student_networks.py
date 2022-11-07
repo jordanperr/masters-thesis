@@ -33,7 +33,7 @@ tf.config.threading.set_inter_op_parallelism_threads(2)
 
 def run_distill(params):
 
-    tf.keras.utils.set_random_seed(params["seed"])
+    tf.keras.utils.set_random_seed(int(params["seed"]))
 
     pathlib.Path(path+f"/{params['uuid']}").mkdir(parents=True, exist_ok=False)
 

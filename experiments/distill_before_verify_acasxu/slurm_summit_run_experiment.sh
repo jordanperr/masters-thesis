@@ -20,6 +20,7 @@ conda list --export > slurm-$SLURM_JOB_ID.$DISTILL_JOB_NAME.conda-requirements-f
 export PYTHONPATH=/home/jope8154/projects/masters_thesis/src/nnenum/src:$PYTHONPATH
 export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=1
+export CUDA_VISIBLE_DEVICES=-1
 
 bash 0_run_full_experiment.sh $DISTILL_JOB_NAME.json
 
