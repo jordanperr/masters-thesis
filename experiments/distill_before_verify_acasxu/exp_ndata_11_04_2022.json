@@ -1,17 +1,17 @@
 {
     "hyperparameters": {
-        "num_hidden_layers": [4],
+        "num_hidden_layers": [3],
         "hidden_layer_width": [50],
-        "repetition": [1,2],
-        "n_synthetic_data_points": [65536],
+        "repetition": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],
+        "n_synthetic_data_points": [2048, 4096, 8192, 16384, 32768, 65536],
         "synthetic_data_sampling": ["random_iid"],
         "tau": [1],
         "a_prev": [1]
     },
     "properties": ["1","2","3","4","5","6","7","8","9","10"],
-    "distill_parallelism": 4,
-    "nnenum_cmd": "docker run --cpus=1 -v /Users/jperrsau/cu-src/thesis/src/distill:/Users/jperrsau/cu-src/thesis/src/distill nnenum_image bash -c \"python3 -m nnenum.nnenum {network_path} {property_path} {timeout} {result_path} > {stdout_path}\"",
-    "nnenum_parallelism": 4,
+    "distill_parallelism": 10,
+    "nnenum_cmd": "python3 -m nnenum.nnenum {network_path} {property_path} {timeout} {result_path} 1 > {stdout_path}",
+    "nnenum_parallelism": 10,
     "nnenum_timeout": 600,
     "output_dir":"/Users/jperrsau/cu-src/thesis/src/distill/output_data/exp_test_11_04_2022",
     "acasxu_dir":"/Users/jperrsau/cu-src/thesis/src/distill/data/acasxu"

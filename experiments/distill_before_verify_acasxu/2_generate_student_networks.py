@@ -10,7 +10,7 @@ Outputs:
 - UUID.student.stats.csv
 """
 
-from experiment_lib import load_vnncomp_2021_acasxu_network, distill, check_closeness, write_tf_network_to_onnx_file
+from experiment_lib import load_vnncomp_2021_acasxu_network, write_tf_network_to_onnx_file, distill_using_only_crossentropy_loss
 import pandas as pd
 import sys
 import multiprocessing as mp
@@ -20,10 +20,10 @@ import pathlib
 import json
 from keras.utils.layer_utils import count_params
 
-path = sys.argv[1]
-
-with open(sys.argv[1]+".json") as config_fp:
+with open(sys.argv[1]) as config_fp:
     global_config = json.load(config_fp)
+
+path = global_config["output_dir"]
 
 def run_distill(params):
 
@@ -32,10 +32,10 @@ def run_distill(params):
     # Read teacher network from disk or cache
     teacher = load_vnncomp_2021_acasxu_network(params["tau"], params["a_prev"])
 
-    # Create student network using network distillation
+    # Create student network using distillation
     start = time.perf_counter()
 
-    student, history = distill(teacher,
+    student, history = distill_using_only_crossentropy_loss(teacher,
         params["n_synthetic_data_points"],
         params["synthetic_data_sampling"],
         params["hidden_layer_width"],

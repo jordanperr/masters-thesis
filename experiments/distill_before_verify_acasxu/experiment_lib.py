@@ -54,6 +54,94 @@ def load_vnncomp_2021_acasxu_network(tau, a_prev, path="../../data/acasxu"):
     """
     return AcasXUNetwork(Path(path)/f"ACASXU_run2a_{tau}_{a_prev}_batch_2000.onnx")
 
+def distill_using_only_crossentropy_loss(teacher:AcasXUNetwork,
+            n_synthetic_data_points,
+            synthetic_data_sampling,
+            hidden_layer_width,
+            num_hidden_layers,
+            batch_size=2**10,
+            epochs=500,
+            verbose=0):
+    """
+    Data-free distillation (compression) of teacher network using only the crossentropy loss.
+    Same method as is used in notebooks/thesis_figures/acasxu-distillation
+
+    Returns:
+    - student_model(tf.model)
+    """
+    ## Generate synthetic input data for distillation process
+    synthetic_inputs = (rng.random((n_synthetic_data_points,5),dtype="float32")-0.5)
+    ## Run the teacher network on the synthetic input data
+    synthetic_outputs = teacher.run(synthetic_inputs)
+
+    ## Generate synthetic validation data for distillation process
+    synthetic_inputs_val = (rng.random((int(n_synthetic_data_points*0.2),5),dtype="float32")-0.5)
+    ## Run the teacher network on the synthetic input data
+    synthetic_outputs_val = teacher.run(synthetic_inputs_val)
+    
+    ## Create student network
+    ### Input Layer
+    layers = [
+        tf.keras.layers.Dense(
+            hidden_layer_width,
+            activation=tf.nn.relu,
+            input_shape=(5,),
+            kernel_initializer=tf.keras.initializers.GlorotUniform(),
+            bias_initializer=tf.keras.initializers.GlorotUniform()
+        )
+    ]
+
+    ### Hidden Layers
+    for i in range(num_hidden_layers-1):
+        layers.append(
+            tf.keras.layers.Dense(hidden_layer_width,
+                activation=tf.nn.relu,
+                kernel_initializer=tf.keras.initializers.GlorotUniform(),
+                bias_initializer=tf.keras.initializers.GlorotUniform())
+        )
+
+    ### Output Layer
+    layers.append(tf.keras.layers.Dense(5))
+    student_model = tf.keras.Sequential(layers)
+
+    ### We train the student model using only the sparse categorical crossentropy based on our preliminary results that this works better than matching logits for ACAS-Xu.
+    student_model.compile(
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
+        optimizer=tf.keras.optimizers.Adam(0.001)
+    )
+
+    ## Fit the student model using the synthetic data
+    history = student_model.fit(
+        x=synthetic_inputs,
+        y=synthetic_outputs.argmax(axis=1).flatten(),#synthetic_outputs, #- Using logits in the loss function requires a different loss metric, like KLDivergence. But I couldn't get it working immediately.
+        epochs=epochs,
+        batch_size=batch_size,
+        verbose=verbose,
+        validation_data = (synthetic_inputs_val, synthetic_outputs_val.argmax(axis=1).flatten()),
+        callbacks=[
+            tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+        ],
+    )
+
+    return student_model, history
+
+def distillation_loss(teacher_logits, student_logits):
+    """
+    Implementation of knowledge distillation loss as described by Hinton in his 2015 paper.
+    """
+    temperature = 100.0
+    alpha = 1.0
+
+    distillation_loss = tf.keras.losses.KLDivergence()(
+        tf.nn.softmax(teacher_logits / temperature, axis=-1),
+        tf.nn.softmax(student_logits / temperature, axis=-1)
+    ) * temperature**2
+
+    student_loss = tf.keras.losses.CategoricalCrossentropy(from_logits=True)(teacher_logits, student_logits)
+
+    return alpha * distillation_loss + (1.0-alpha) * student_loss
+
 def distill(teacher:AcasXUNetwork,
             n_synthetic_data_points,
             synthetic_data_sampling,
@@ -100,9 +188,10 @@ def distill(teacher:AcasXUNetwork,
     layers.append(tf.keras.layers.Dense(5))
     student_model = tf.keras.Sequential(layers)
 
-    ### Julian K uses an asymmetric loss function based on MSE. We use MSE here for now.
+    ### Julian uses an asymmetric loss function based on MSE.
     student_model.compile(
         #loss=tf.keras.metrics.SparseCategoricalCrossentropy(),
+        #loss=distillation_loss,
         loss=tf.keras.losses.MeanSquaredError(),
         #loss=tf.keras.losses.KLDivergence(),
         metrics=[tf.keras.metrics.MeanSquaredError(),

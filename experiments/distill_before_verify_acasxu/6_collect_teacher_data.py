@@ -7,15 +7,15 @@ import os
 
 print("6_collect_teacher_data.py")
 
-name=sys.argv[1]
+with open(sys.argv[1]) as config_fp:
+    global_config = json.load(config_fp)
 
-with open(name+".json", "r") as fp:
-    config = json.load(fp)
+path = global_config["output_dir"]
 
-uuids = os.listdir(name+"/teacher")
+uuids = [os.path.basename(x) for x in glob.glob(path+"/teacher/*")]
 print(uuids)
 
-index = pd.read_csv(name+"/index.csv")
+index = pd.read_csv(path+"/index.csv")
 
 results = []
 
@@ -25,9 +25,9 @@ for uuid in uuids:
 
     print(uuid)
 
-    for property in config["properties"]:
+    for property in global_config["properties"]:
 
-        with open(f"{name}/teacher/{uuid}/verify.{property}.result", "r") as fp:
+        with open(f"{path}/teacher/{uuid}/verify.{property}.result", "r") as fp:
             verified_result, python_time = [a.strip() for a in fp.readlines()]
             result[f"prop.{property}.result"] = verified_result.strip()
             result[f"prop.{property}.python_time"] = float(python_time.split(":")[1])
@@ -36,9 +36,9 @@ for uuid in uuids:
             runtime_re = None
             result_re = None   
         else:
-            with open(f"{name}/teacher/{uuid}/verify.{property}.stdout", "r") as fp:
+            with open(f"{path}/teacher/{uuid}/verify.{property}.stdout", "r") as fp:
                 contents = fp.read()
-                print(f"{name}/teacher/{uuid}/verify.{property}.stdout")
+                print(f"{path}/teacher/{uuid}/verify.{property}.stdout")
                 if re.search("Timeout \(\d+.\d+\) reached during execution", contents) != None:
                     runtime_re = None
                     result_re = "Unknown - Timeout Reached"
@@ -56,5 +56,5 @@ for uuid in uuids:
 
 results_df = pd.DataFrame(results)
 
-results_df.to_csv(f"{name}/results.teacher.csv", index=False)
+results_df.to_csv(f"{path}/results.teacher.csv", index=False)
 
