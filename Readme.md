@@ -34,3 +34,7 @@ Submitted batch job 11931238
 ## Other files in this repository:
 
 - notebooks/*.ipynb: Mostly exploratory notebooks. Organized by date.
+
+## Dependencies:
+- ACAS-Xu Data and Properties: https://github.com/stanleybak/vnncomp2021/tree/79af0d7/benchmarks/acasxu
+- NNenum Software: https://github.com/stanleybak/NNenum/tree/fa1463b
